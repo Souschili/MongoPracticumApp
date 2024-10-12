@@ -16,9 +16,9 @@ namespace MongoEFCoreApp.Helpers
                 "Sevda", "Arif", "Gunel", "Nigar", "Tural",
                 "Chingiz","Orkhan","Aida","Saida"
             };
-            for (int i = 0; i < names.Length; i++)
+            for (int i = 0; i < 100; i++)
             {
-                string name = names[i];
+                string name = names[random.Next(names.Length)];
                 var user = new User
                 {
                     Name = name,
