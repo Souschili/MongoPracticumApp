@@ -17,9 +17,10 @@ namespace MongoEFCoreApp
             //await MongoSeedData.UploadUserData(_usersCol);
         }
 
-        // тут запросы на чтение 
+        // тут запросы на чтение в двух стилях лямбды и фильтры
         public static void ReadConcern()
         {
+            
 
         }
         
