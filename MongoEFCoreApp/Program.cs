@@ -15,9 +15,12 @@ namespace MongoEFCoreApp
             // seed users to mongo
             // генератор записей для коллекции 
             //await MongoSeedData.UploadUserData(_usersCol);
-            
+
             // простая фильрация
             //await FiltrationQuery();
+
+            // агрегация
+            await Aggreagtion();
         }
 
         // тут запросы на чтение в двух стилях лямбды и фильтры
@@ -41,18 +44,46 @@ namespace MongoEFCoreApp
 
             // 3. Найдите активных пользователей и отсортируйте их по возрасту в порядке возрастания.
             //var filterTask3 = filterBuilder.Eq(x => x.isActive, true);
-            var task3 = await _usersCol.Find(x => x.isActive == true).SortBy(x=>x.Age).ToListAsync();
+            var task3 = await _usersCol.Find(x => x.isActive == true).SortBy(x => x.Age).ToListAsync();
 
             // 4. Получите список всех пользователей, но отобразите только их имена и адреса электронной почты.
 
             var task4 = await _usersCol.Find(_ => true).
-                Project(x => new { x.Name ,x.Email}).  // work as select
+                Project(x => new { x.Name, x.Email }).  // work as select
                 ToListAsync();
             task4.ForEach(x => Console.WriteLine(x.ToJson()));
             // 5. Найдите первых 5 пользователей, которые не являются активными.
             //var filterTAsk = filterBuilder.Eq(x => x.isActive, false);
-            var task5=await _usersCol.Find(x=> !x.isActive).Limit(5).ToListAsync();
+            var task5 = await _usersCol.Find(x => !x.isActive).Limit(5).ToListAsync();
         }
 
+        // запросы с агрегацией
+        public static async Task Aggreagtion()
+        {
+            // 1. Найдите средний возраст всех пользователей
+            var task1 = await _usersCol.Aggregate()
+                .Group(new BsonDocument
+                {
+                    {"_id",BsonNull.Value},
+                    {"AverageAge",new BsonDocument{ { "$avg","$age"} } }
+                }).ToListAsync();
+
+
+            Console.WriteLine(task1.ToJson());
+
+            //3. Найдите количество активных и неактивных пользователей.
+            var task2 = await _usersCol.Aggregate()
+                .Group(
+                new BsonDocument
+                {
+                    {"_id",BsonNull.Value},
+                    // работает аналогично тернарному оператору new BsonDocument{ {"$cond",new BsonArray {"isActive",1,0 } } }
+                    // вначале идет условие в данном случае isActive если оно истино мы прибавляем единицуб если нет то 0
+                    {"ActiveSum",new BsonDocument{{"$sum",new BsonDocument{{"$cond",new BsonArray{"$isActive",1,0} } } } } },
+                    {"UnActiveSum",new BsonDocument{{"$sum",new BsonDocument { { "$cond",new BsonArray { "$isActive",0,1} } } }} }
+                }).ToListAsync();
+
+            Console.WriteLine(task2.ToJson());
+        }
     }
 }
