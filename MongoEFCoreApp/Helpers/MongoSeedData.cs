@@ -19,11 +19,12 @@ namespace MongoEFCoreApp.Helpers
             for (int i = 0; i < 100; i++)
             {
                 string name = names[random.Next(names.Length)];
+                int age = random.Next(18, 78);
                 var user = new User
                 {
                     Name = name,
-                    Age = random.Next(18, 65),
-                    Email = $"{name.ToLower()}@example.az",
+                    Age = age,
+                    Email = $"{name.ToLower()}{age}@example.az",
                     isActive = random.Next(0, 2) == 1
                 };
                 users.Add(user);
