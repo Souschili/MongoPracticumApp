@@ -15,11 +15,11 @@ namespace MongoEFCoreApp
             // seed users to mongo
             // генератор записей для коллекции 
             //await MongoSeedData.UploadUserData(_usersCol);
-            await ReadContern();
+            await ReadContent();
         }
 
         // тут запросы на чтение в двух стилях лямбды и фильтры
-        public static async Task ReadContern()
+        public static async Task ReadContent()
         {
             // бьюлдер для фильтров ,добавлен для фильрационых запросов
             FilterDefinitionBuilder<User> filterBuilder = new FilterDefinitionBuilder<User>();
@@ -36,6 +36,20 @@ namespace MongoEFCoreApp
             // вывод данных
             //Console.WriteLine($"Найдено {task2.Count} записей");
             //task2.ForEach(x => Console.WriteLine(x.ToJson()));
+
+            // 3. Найдите активных пользователей и отсортируйте их по возрасту в порядке возрастания.
+            //var filterTask3 = filterBuilder.Eq(x => x.isActive, true);
+            var task3 = await _usersCol.Find(x => x.isActive == true).SortBy(x=>x.Age).ToListAsync();
+
+            // 4. Получите список всех пользователей, но отобразите только их имена и адреса электронной почты.
+
+            var task4 = await _usersCol.Find(_ => true).
+                Project(x => new { x.Name ,x.Email}).  // work as select
+                ToListAsync();
+            task4.ForEach(x => Console.WriteLine(x.ToJson()));
+            // 5. Найдите первых 5 пользователей, которые не являются активными.
+            //var filterTAsk = filterBuilder.Eq(x => x.isActive, false);
+            var task5=await _usersCol.Find(x=> !x.isActive).Limit(5).ToListAsync();
         }
 
     }
