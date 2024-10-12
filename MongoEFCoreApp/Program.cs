@@ -15,11 +15,13 @@ namespace MongoEFCoreApp
             // seed users to mongo
             // генератор записей для коллекции 
             //await MongoSeedData.UploadUserData(_usersCol);
-            await ReadContent();
+            
+            // простая фильрация
+            //await FiltrationQuery();
         }
 
         // тут запросы на чтение в двух стилях лямбды и фильтры
-        public static async Task ReadContent()
+        public static async Task FiltrationQuery()
         {
             // бьюлдер для фильтров ,добавлен для фильрационых запросов
             FilterDefinitionBuilder<User> filterBuilder = new FilterDefinitionBuilder<User>();
